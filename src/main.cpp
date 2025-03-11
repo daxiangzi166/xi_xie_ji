@@ -1,12 +1,21 @@
 #define BLINKER_PRINT Serial
 #define BLINKER_WIFI
 
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
 #include <Blinker.h>
 #include <Arduino.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 char auth[] = "e0ac32aaa464";
 char ssid[] = "科创工作室";
 char pswd[] = "xsj666666";
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // 新建组件对象
 BlinkerButton Button1("btn-on");
@@ -86,19 +95,67 @@ void waterlow()
   digitalWrite(waterpin2, LOW);
 }
 
+
+void waterrun()
+{
+  waterhigh();
+  delay(10000);
+  waterlow();
+  delay(1000);
+}
+
 void Button2_callback(const String & state)
 {
   BLINKER_LOG("get button state: ", state);
   if(state == F("on"))
   {
-   waterhigh();
-   Button2.print("on");
-  }
-  else if (state == F("off"))
-  {
-    waterlow();
+    waterrun();
     Button2.print("off");
   }
+}
+
+
+
+void OLEDSetup()
+{
+  Wire.begin();
+  display.begin();
+  display.clearDisplay();
+}
+
+void OLEDPrint(String str)
+{
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("欢迎使用刷鞋机");
+  display.display();
+  delay(1000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("请将鞋子放入,并点击按钮开始");
+  display.display();
+  delay(1000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("谢谢");
+  display.display();
+  delay(1000);
+}
+
+void OLEDPr()
+{
+  OLEDPrint("欢迎使用刷鞋机");
+  delay(5000);
+  OLEDPrint("请将鞋子放入,并点击按钮开始");
+  delay(5000);
+  OLEDPrint("谢谢");
+  delay(5000);
 }
 
 void setup() {
@@ -107,6 +164,7 @@ void setup() {
     
     motorPin();
     waterPin();
+    OLEDSetup();
 
     #if defined(BLINKER_PRINT)
         BLINKER_DEBUG.stream(BLINKER_PRINT);
@@ -124,4 +182,5 @@ void setup() {
 void loop() 
 {
  Blinker.run();
+ OLEDPr();
 }
