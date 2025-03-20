@@ -1,23 +1,15 @@
 #define BLINKER_PRINT Serial
 #define BLINKER_WIFI
 
-// OLED显示屏的宽度和高度
-#define SCREEN_WIDTH 128 
-#define SCREEN_HEIGHT 64 
-
 #include <Blinker.h>
 #include <Arduino.h>
+#include <U8g2lib.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
 // Blinker设备认证信息和WiFi网络信息
 char auth[] = "e0ac32aaa464";
 char ssid[] = "密码是";
 char pswd[] = "a&J8O3804";
-
-// 创建OLED显示对象
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // 定义Blinker按钮组件
 BlinkerButton Button1("btn-on");
@@ -127,35 +119,21 @@ void Button2_callback(const String & state)
   }
 }
 
-// 初始化OLED显示屏
-void OLEDSetup()
-{
-  Wire.begin();
-  display.begin();
-  display.clearDisplay();
-}
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 
-// 在OLED显示屏上打印消息
-void OLEDPrint(String str)
+void OLED()
 {
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println(str);
-  display.display();
+  u8g2.setFont(u8g2_font_wqy12_t_chinese1);
+  u8g2.setFontPosTop();
+  u8g2.setCursor(0,20);
+  u8g2.print("你好");
   delay(1000);
-}
-
-// 循环调用OLEDPrint以显示不同的提示信息
-void OLEDPr()
-{
-  OLEDPrint("欢迎使用刷鞋机");
-  delay(5000);
-  OLEDPrint("请将鞋子放入,并点击按钮开始");
-  delay(5000);
-  OLEDPrint("谢谢");
-  delay(5000);
+  u8g2.clearDisplay();
+  u8g2.setFont(u8g2_font_wqy12_t_chinese1);
+  u8g2.setFontPosTop();
+  u8g2.setCursor(0,20);
+  u8g2.print("你好");
+  delay(1000);
 }
 
 // 系统初始化
@@ -165,7 +143,10 @@ void setup() {
     
     motorPin(); // 初始化电机控制
     waterPin(); // 初始化水泵控制
-    OLEDSetup(); // 初始化OLED显示屏
+
+    u8g2.setI2CAddress(0x3C*2);
+    u8g2.begin();
+    u8g2.enableUTF8Print();
 
     // 如果定义了BLINKER_PRINT，则启用调试输出
     #if defined(BLINKER_PRINT)
@@ -185,5 +166,9 @@ void setup() {
 void loop() 
 {
   Blinker.run(); // 处理Blinker事件
-  OLEDPr(); // 显示提示信息
+    u8g2.firstPage();
+  do
+  {
+    OLED();
+  }while(u8g2.nextPage()); // 显示OLED
 }
