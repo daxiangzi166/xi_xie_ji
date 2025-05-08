@@ -8,8 +8,8 @@
 
 // Blinker设备认证信息和WiFi网络信息
 char auth[] = "e0ac32aaa464";
-char ssid[] = "密码是";
-char pswd[] = "a&J8O3804";
+char ssid[] = "科创工作室";
+char pswd[] = "xsj666666";
 
 // 定义Blinker按钮组件
 BlinkerButton Button1("btn-on");

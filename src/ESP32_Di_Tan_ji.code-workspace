@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "ESP32_Di_Tan_ji",
+			"path": ".."
+		},
+		{
+			"name": "van",
+			"path": "../../van"
+		}
+	],
+	"settings": {}
+}
