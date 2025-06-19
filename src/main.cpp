@@ -1,20 +1,22 @@
 #define BLYNK_PRINT Serial
 
-#include <Blynk.h>
+// 添加模板ID和名称
+#define BLYNK_TEMPLATE_ID "TMPL6ae6ZQ2VV"
+#define BLYNK_TEMPLATE_NAME "Quickstart Template"
+
+#include <WiFi.h>
+#include <BlynkSimpleEsp32.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <Wire.h>
 
-// 添加模板ID和名称
-#define BLYNK_TEMPLATE_ID "your_template_id"
-#define BLYNK_TEMPLATE_NAME "your_template_name"
-
-char auth[] = "your_auth_token"; // 替换为你的Blynk授权令牌
-char ssid[] = "your_wifi_ssid"; // 替换为你的WiFi SSID
-char pass[] = "your_wifi_password"; // 替换为你的WiFi密码
+char auth[] = "mcPWGqdRHuCvFjCNQ0uk0XJ_toAZxCPt"; // 替换为你的Blynk授权令牌
+char ssid[] = "科创工作室"; // 替换为你的WiFi SSID
+char pass[] = "xsj666666"; // 替换为你的WiFi密码
 
 int counter = 0;
 int vpin_value;
+
 
 // 定义电机控制引脚
 int motor1Pin1 = 27;
@@ -61,12 +63,12 @@ void motorlow()
 }
 
 // 按钮1回调函数
-BLYNK_WRITE(V0) // 假设按钮1连接到虚拟引脚V1
+BLYNK_WRITE(V1) // 假设按钮1连接到虚拟引脚V1
 { 
   vpin_value = param.asInt();
   if(vpin_value == 1) // 如果按钮被按下
   {
-    serial.printen(vpin_value); // 打印按钮状态到串口
+    Serial.println(vpin_value); // 打印按钮状态到串口
     motorhigh(); // 启动电机
   }
   else
@@ -111,14 +113,15 @@ void waterrun()
 }
 
 // 按钮2回调函数
-BLYNK_WRITE(V1)
+BLYNK_WRITE(V0)
 {
-  
-  while(param.asInt() == 1;)
+  vpin_value = param.asInt(); // 获取虚拟引脚V1的值
+  if(vpin_value == 1)
   {
     waterrun(); // 启动泵水程序
   }
 }
+
 
 //继电器引脚为输出模式
 void trigpin()
@@ -136,10 +139,10 @@ void triglow()
   digitalWrite(trigPin, LOW);
 }
 
-BLYNK_WRITE(V2) // 假设按钮3连接到虚拟引脚V2
+BLYNK_WRITE(V4) // 假设按钮3连接到虚拟引脚V2
 {
-  
-  if(param.asInt() == 1)
+  vpin_value = param.asInt();
+  if(vpin_value == 1)
   {
     trighigh(); // 启动继电器
   }
@@ -167,11 +170,12 @@ void OLED()
 }
 
 // 系统初始化
-void setup() {
+void setup() 
+{
     // 初始化串口通信
     Serial.begin(9600);
     Blynk.begin(auth, ssid, pass); // 使用正确的初始化方式
-    
+
     motorPin(); // 初始化电机控制
     waterPin(); // 初始化水泵控制
     trigpin(); // 初始化超声波继电器控制
@@ -180,8 +184,6 @@ void setup() {
     u8g2.begin();
     u8g2.enableUTF8Print();
 
-
-    
     // 初始化内置LED
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
@@ -191,9 +193,10 @@ void setup() {
 void loop() 
 {
   Blynk.run(); // 运行Blynk库
-    u8g2.firstPage();
+
+  u8g2.firstPage();
   do
   {
     OLED();
-  }while(u8g2.nextPage()); // 显示OLED
+  } while(u8g2.nextPage()); // 显示OLED
 }
