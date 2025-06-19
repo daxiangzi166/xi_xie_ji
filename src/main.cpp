@@ -19,13 +19,13 @@ int vpin_value;
 
 
 // 定义电机控制引脚
-int motor1Pin1 = 27;
-int motor1Pin2 = 26;
+int motor1Pin1 = 17;
+int motor1Pin2 = 18;
 int enable1Pin1 = 14;
 
 // 定义水泵控制引脚
-int waterpin1 = 32;
-int waterpin2 = 33;
+int waterpin1 = 39;
+int waterpin2 = 40;
 int enable1Pin2 = 32;
 
 //定义超声波控制的继电器的引脚
