@@ -1,21 +1,20 @@
-#define BLINKER_PRINT Serial
-#define BLINKER_WIFI
+#define BLYNK_PRINT Serial
 
-#include <Blinker.h>
+#include <Blynk.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <Wire.h>
 
-// Blinker设备认证信息和WiFi网络信息
-char auth[] = "e0ac32aaa464";
-char ssid[] = "科创工作室";
-char pswd[] = "xsj666666";
+// 添加模板ID和名称
+#define BLYNK_TEMPLATE_ID "your_template_id"
+#define BLYNK_TEMPLATE_NAME "your_template_name"
 
-// 定义Blinker按钮组件
-BlinkerButton Button1("btn-on");
-BlinkerButton Button2("btn-wtf");
+char auth[] = "your_auth_token"; // 替换为你的Blynk授权令牌
+char ssid[] = "your_wifi_ssid"; // 替换为你的WiFi SSID
+char pass[] = "your_wifi_password"; // 替换为你的WiFi密码
 
 int counter = 0;
+int vpin_value;
 
 // 定义电机控制引脚
 int motor1Pin1 = 27;
@@ -26,6 +25,9 @@ int enable1Pin1 = 14;
 int waterpin1 = 32;
 int waterpin2 = 33;
 int enable1Pin2 = 32;
+
+//定义超声波控制的继电器的引脚
+int trigPin = 12; // 超声波触发引脚
 
 // PWM设置参数
 const int frep = 30000; // 频率
@@ -59,20 +61,20 @@ void motorlow()
 }
 
 // 按钮1回调函数
-void Button1_callback(const String & state)
-{
-  BLINKER_LOG("get button state: ", state);
-  if(state == F("on"))
+BLYNK_WRITE(V0) // 假设按钮1连接到虚拟引脚V1
+{ 
+  vpin_value = param.asInt();
+  if(vpin_value == 1) // 如果按钮被按下
   {
+    serial.printen(vpin_value); // 打印按钮状态到串口
     motorhigh(); // 启动电机
-    Button1.print("on"); // 更新按钮状态
   }
-  else if (state == F("off"))
+  else
   {
     motorlow(); // 停止电机
-    Button1.print("off"); // 更新按钮状态
   }
 }
+
 
 // 初始化水泵控制引脚并配置PWM
 void waterPin()
@@ -109,13 +111,41 @@ void waterrun()
 }
 
 // 按钮2回调函数
-void Button2_callback(const String & state)
+BLYNK_WRITE(V1)
 {
-  BLINKER_LOG("get button state: ", state);
-  if(state == F("on"))
+  
+  while(param.asInt() == 1;)
   {
     waterrun(); // 启动泵水程序
-    Button2.print("off"); // 更新按钮状态
+  }
+}
+
+//继电器引脚为输出模式
+void trigpin()
+{
+  pinMode(trigPin, OUTPUT);
+}
+
+void trighigh()
+{
+  digitalWrite(trigPin, HIGH);
+}
+
+void triglow()
+{
+  digitalWrite(trigPin, LOW);
+}
+
+BLYNK_WRITE(V2) // 假设按钮3连接到虚拟引脚V2
+{
+  
+  if(param.asInt() == 1)
+  {
+    trighigh(); // 启动继电器
+  }
+  else
+  {
+    triglow(); // 停止继电器
   }
 }
 
@@ -139,33 +169,28 @@ void OLED()
 // 系统初始化
 void setup() {
     // 初始化串口通信
-    Serial.begin(115200);
+    Serial.begin(9600);
+    Blynk.begin(auth, ssid, pass); // 使用正确的初始化方式
     
     motorPin(); // 初始化电机控制
     waterPin(); // 初始化水泵控制
+    trigpin(); // 初始化超声波继电器控制
 
     u8g2.setI2CAddress(0x3C*2);
     u8g2.begin();
     u8g2.enableUTF8Print();
 
-    // 如果定义了BLINKER_PRINT，则启用调试输出
-    #if defined(BLINKER_PRINT)
-        BLINKER_DEBUG.stream(BLINKER_PRINT);
-    #endif
+
     
     // 初始化内置LED
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
-    // 初始化Blinker服务
-    Blinker.begin(auth, ssid, pswd);
-    Button1.attach(Button1_callback); // 绑定按钮1回调函数
-    Button2.attach(Button2_callback); // 绑定按钮2回调函数
 }
 
 // 主循环
 void loop() 
 {
-  Blinker.run(); // 处理Blinker事件
+  Blynk.run(); // 运行Blynk库
     u8g2.firstPage();
   do
   {
