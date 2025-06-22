@@ -63,7 +63,7 @@ void motorlow()
 }
 
 // 按钮1回调函数
-BLYNK_WRITE(V1) // 假设按钮1连接到虚拟引脚V1
+BLYNK_WRITE(V0) // 假设按钮1连接到虚拟引脚V1
 { 
   vpin_value = param.asInt();
   if(vpin_value == 1) // 如果按钮被按下
@@ -119,7 +119,7 @@ BLYNK_WRITE(V1)
   Serial.println(vpin_value); // 打印按钮状态到串口
   if(vpin_value == 1)
   {
-    vpin_value =
+    Serial.println(vpin_value); // 打印按钮状态到串口
     waterrun(); // 启动泵水程序
   }
 }
