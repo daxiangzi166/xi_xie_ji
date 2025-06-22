@@ -1,4 +1,5 @@
 #define BLYNK_PRINT Serial
+double temp, data;
 
 // 添加模板ID和名称
 #define BLYNK_TEMPLATE_ID "TMPL6ae6ZQ2VV"
@@ -34,6 +35,10 @@ int enable1Pin1 = 14;
 int waterpin1 = 39;
 int waterpin2 = 40;
 int enable1Pin2 = 32;
+int waterpin3 = 33; // 水泵控制引脚
+int waterpin4 = 34; // 水泵控制引脚
+
+int val = 9;
 
 //定义超声波控制的继电器的引脚
 int trigPin = 12; // 超声波触发引脚
@@ -145,6 +150,8 @@ void waterPin(){
   pinMode(waterpin1, OUTPUT);
   pinMode(waterpin2, OUTPUT);
   pinMode(enable1Pin1, OUTPUT);
+  pinMode(waterpin3, OUTPUT);
+  pinMode(waterpin4, OUTPUT);
 
   ledcAttachPin(enable1Pin1, pwmchannel);
   ledcSetup(pwmchannel, frep, resolution);
@@ -162,12 +169,40 @@ void waterlow(){
   digitalWrite(waterpin2, LOW);
 }
 
+void waterhigh2(){
+  digitalWrite(waterpin3, HIGH);
+  digitalWrite(waterpin4, LOW);
+}
+
+void waterlow2(){ 
+  digitalWrite(waterpin3, LOW);
+  digitalWrite(waterpin4, LOW);
+}
+
+void valpin(){
+  pinMode(val, OUTPUT); // 设置val引脚为输出模式
+  digitalWrite(val, LOW); // 初始化val引脚为低电平
+}
+
+void valrun(){ 
+  temp=(long)analogRead(0);
+  data=(temp/650)*4; // 将模拟值转换为0-4V的电压值
+}
+
 // 自动运行泵水程序
 void waterrun(){
-  waterhigh();
-  delay(10000); // 运行10秒
-  waterlow();
-  delay(1000); // 停止1秒
+  if (vpin_value == 1) { // 假设有一个条件变量来判断是否需要运行泵水
+   if (data == 1 ){
+     waterlow();  // 启动第一个泵水
+     buzzerrun(); // 启动蜂鸣器
+     waterhigh2(); // 停止第二个泵水
+   }
+   else if (data < 1 ){
+     waterhigh(); // 启动第一个泵水
+     buzzerrun(); // 启动蜂鸣器
+     waterlow2(); // 停止第二个泵水
+  }
+ }
 }
 
 // 按钮2回调函数
@@ -238,6 +273,7 @@ void setup(){
     trigpin(); // 初始化超声波继电器控制
     buzzerpin(); // 初始化蜂鸣器控制
     LEDRUN(); // 初始化LED灯带
+    valpin(); // 初始化模拟引脚
 
     u8g2.setI2CAddress(0x3C*2);
     u8g2.begin();
