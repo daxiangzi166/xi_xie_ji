@@ -56,6 +56,30 @@ void LEDRGB(){
   FastLED.setBrightness(BRIGHTNESS); // 设置全局亮度
 }
 
+void LEDRGBloop(){
+  for (int i = 0; i < 256; i++) { // 从0变化到255
+    int r = i; // 红色分量
+    int g = 255 - i; // 绿色分量
+    int b = 0; // 蓝色分量为0
+    fill_solid(leds, NUM_LEDS, CHSV(r, 255, g)); // 设置HSV颜色
+    FastLED.show();
+    delay(10); // 短暂延迟以减慢变化速度
+  }
+  // 可以通过改变上面的循环条件或颜色函数来创建其他动态效果
+}
+
+void LEDRUN(){
+  if (vpin_value == 1) { // 如果按钮被按下
+    Serial.println("LED灯带开始运行");
+    LEDRGB(); // 初始化LED灯带
+    LEDRGBloop(); // 运行LED灯带循环
+  } else {
+    Serial.println("LED灯带停止运行");
+    fill_solid(leds, NUM_LEDS, CRGB::Black); // 停止LED灯带
+    FastLED.show();
+  }
+}
+
 void buzzerpin(){ 
   pinMode(buzzerPin1, OUTPUT);
   pinMode(buzzerPin2, OUTPUT);
@@ -213,7 +237,7 @@ void setup(){
     waterPin(); // 初始化水泵控制
     trigpin(); // 初始化超声波继电器控制
     buzzerpin(); // 初始化蜂鸣器控制
-    LEDRGB(); // 初始化LED灯带
+    LEDRUN(); // 初始化LED灯带
 
     u8g2.setI2CAddress(0x3C*2);
     u8g2.begin();
@@ -233,14 +257,4 @@ void loop(){
   {
     OLED();
   } while(u8g2.nextPage()); // 显示OLED
-
-  for (int i = 0; i < 256; i++) { // 从0变化到255
-    int r = i; // 红色分量
-    int g = 255 - i; // 绿色分量
-    int b = 0; // 蓝色分量为0
-    fill_solid(leds, NUM_LEDS, CHSV(r, 255, g)); // 设置HSV颜色
-    FastLED.show();
-    delay(10); // 短暂延迟以减慢变化速度
-  }
-  // 可以通过改变上面的循环条件或颜色函数来创建其他动态效果
 }
