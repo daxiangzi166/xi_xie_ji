@@ -113,11 +113,13 @@ void waterrun()
 }
 
 // 按钮2回调函数
-BLYNK_WRITE(V0)
+BLYNK_WRITE(V1)
 {
   vpin_value = param.asInt(); // 获取虚拟引脚V1的值
+  Serial.println(vpin_value); // 打印按钮状态到串口
   if(vpin_value == 1)
   {
+    vpin_value =
     waterrun(); // 启动泵水程序
   }
 }
@@ -139,15 +141,17 @@ void triglow()
   digitalWrite(trigPin, LOW);
 }
 
-BLYNK_WRITE(V4) // 假设按钮3连接到虚拟引脚V2
+BLYNK_WRITE(V2) // 假设按钮3连接到虚拟引脚V2
 {
   vpin_value = param.asInt();
   if(vpin_value == 1)
   {
+    Serial.println(vpin_value); // 打印按钮状态到串口
     trighigh(); // 启动继电器
   }
   else
   {
+    Serial.println(vpin_value); // 打印按钮状态到串口
     triglow(); // 停止继电器
   }
 }
